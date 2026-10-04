@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VisionForge AI Studio</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#07080d;
+  color:#fff;
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:240px;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  background:#0b0d13;
+  border-right:1px solid #242936;
+  padding:22px 15px;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:35px;
+}
+
+.logo span{
+  color:#9b5cff;
+}
+
+.title{
+  font-size:10px;
+  color:#666d7c;
+  margin:20px 10px 8px;
+  letter-spacing:1px;
+}
+
+.nav button{
+  width:100%;
+  padding:12px;
+  margin:3px 0;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:#9da4b2;
+  text-align:left;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:#191326;
+  color:white;
+}
+
+.main{
+  margin-left:240px;
+  width:calc(100% - 240px);
+  padding:28px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.top h1{
+  font-size:27px;
+}
+
+.top p{
+  color:#858c9b;
+  font-size:12px;
+  margin-top:5px;
+}
+
+.status{
+  color:#86efac;
+  background:#0c1510;
+  border:1px solid #29402f;
+  border-radius:20px;
+  padding:8px 13px;
+  font-size:11px;
+}
+
+.hero{
+  padding:30px;
+  border-radius:20px;
+  border:1px solid #30273e;
+  background:
+    radial-gradient(circle at 85% 20%,#4c1d9560,transparent 35%),
+    linear-gradient(135deg,#17121f,#0c0f15);
+  margin-bottom:20px;
+}
+
+.hero h2{
+  font-size:29px;
+}
+
+.hero p{
+  color:#949baa;
+  margin-top:10px;
+  line-height:1.6;
+}
+
+.badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:17px;
+}
+
+.badge{
+  background:#171521;
+  border:1px solid #312c3d;
+  padding:7px 10px;
+  border-radius:8px;
+  color:#c5bfd2;
+  font-size:11px;
+}
+
+.card{
+  background:#0e1017;
+  border:1px solid #242934;
+  border-radius:18px;
+  padding:23px;
+  margin-bottom:20px;
+}
+
+.card h3{
+  font-size:16px;
+  margin-bottom:16px;
+}
+
+textarea,
+select{
+  width:100%;
+  background:#080a0f;
+  color:#fff;
+  border:1px solid #2a2f3a;
+  border-radius:11px;
+  padding:13px;
+  outline:none;
+}
+
+textarea{
+  min-height:160px;
+  resize:vertical;
+}
+
+label{
+  display:block;
+  color:#a9afbc;
+  font-size:11px;
+  margin:14px 0 7px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.primary{
+  margin-top:18px;
+  border:0;
+  border-radius:11px;
+  padding:13px 20px;
+  color:white;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.scene-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:13px;
+}
+
+.scene{
+  background:#11141c;
+  border:1px solid #272c37;
+  border-radius:14px;
+  padding:17px;
+}
+
+.scene-number{
+  color:#a78bfa;
+  font-size:10px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.scene h4{
+  font-size:14px;
+  margin-bottom:7px;
+}
+
+.scene p{
+  color:#7f8695;
+  font-size:11px;
+  line-height:1.5;
+}
+
+.time{
+  display:inline-block;
+  margin-top:12px;
+  background:#211735;
+  color:#c4b5fd;
+  padding:5px 8px;
+  border-radius:6px;
+  font-size:10px;
+}
+
+.progress{
+  display:none;
+  margin-top:18px;
+}
+
+.bar{
+  height:7px;
+  background:#252933;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.fill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#7c3aed,#c084fc);
+}
+
+.progressText{
+  color:#858c99;
+  font-size:11px;
+  margin-top:8px;
+}
+
+@media(max-width:850px){
+
+  .sidebar{
+    width:65px;
+    padding:15px 7px;
+  }
+
+  .logo{
+    font-size:12px;
+    text-align:center;
+  }
+
+  .title{
+    display:none;
+  }
+
+  .nav button{
+    font-size:0;
+    text-align:center;
+  }
+
+  .nav button:first-letter{
+    font-size:18px;
+  }
+
+  .main{
+    margin-left:65px;
+    width:calc(100% - 65px);
+    padding:15px;
+  }
+
+  .grid,
+  .scene-grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero h2{
+    font-size:23px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+  <div class="logo">
+    Vision<span>Forge</span>
+  </div>
+
+  <div class="title">STUDIO</div>
+
+  <div class="nav">
+
+    <button class="active">🎬 Create Video</button>
+    <button>📁 Projects</button>
+    <button>🧑 Characters</button>
+    <button>🎙 Voice</button>
+    <button>🎵 Music</button>
+    <button>⚙ Settings</button>
+
+  </div>
+
+</aside>
+
+
+<main class="main">
+
+  <div class="top">
+
+    <div>
+      <h1>AI Video Studio</h1>
+      <p>Story → Scenes → Cinematic Video</p>
+    </div>
+
+    <div class="status">
+      ● Private Workspace
+    </div>
+
+  </div>
+
+
+  <section class="hero">
+
+    <h2>Create your cinematic AI video</h2>
+
+    <p>
+      Write your story and turn it into an organized
+      multi-scene video project.
+    </p>
+
+    <div class="badges">
+
+      <div class="badge">🎬 8 Scenes</div>
+      <div class="badge">⏱ 20 Minutes</div>
+      <div class="badge">🎙 AI Voice</div>
+      <div class="badge">📱 9:16 / 16:9</div>
+
+    </div>
+
+  </section>
+
+
+  <section class="card">
+
+    <h3>✨ Create New Project</h3>
+
+    <label>Your Story / Script</label>
+
+    <textarea
+      id="story"
+      placeholder="এখানে আপনার সম্পূর্ণ গল্প বা স্ক্রিপ্ট লিখুন..."
+    ></textarea>
+
+
+    <div class="grid">
+
+      <div>
+
+        <label>Video Duration</label>
+
+        <select id="duration">
+
+          <option value="10">10 Minutes</option>
+          <option value="20" selected>20 Minutes</option>
+          <option value="30">30 Minutes</option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Number of Scenes</label>
+
+        <select id="sceneCount">
+
+          <option value="4">4 Scenes</option>
+          <option value="8" selected>8 Scenes</option>
+          <option value="12">12 Scenes</option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Video Style</label>
+
+        <select>
+
+          <option>Cinematic</option>
+          <option>3D Animation</option>
+          <option>Realistic</option>
+          <option>Anime</option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Format</label>
+
+        <select>
+
+          <option>16:9 YouTube</option>
+          <option>9:16 TikTok</option>
+          <option>1:1 Square</option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="primary"
+      onclick="generateScenes()"
+    >
+      ✨ Generate Scene Plan
+    </button>
+
+
+    <div
+      class="progress"
+      id="progress"
+    >
+
+      <div class="bar">
+        <div
+          class="fill"
+          id="fill"
+        ></div>
+      </div>
+
+      <div
+        class="progressText"
+        id="progressText"
+      >
+        Preparing...
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="card">
+
+    <h3>🎞 Scene Timeline</h3>
+
+    <div
+      class="scene-grid"
+      id="sceneGrid"
+    >
+
+      <div class="scene">
+
+        <div class="scene-number">
+          SCENE 01
+        </div>
+
+        <h4>
+          Waiting for your story...
+        </h4>
+
+        <p>
+          Your generated scenes will appear here.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="card">
+
+    <h3>🎛 Production</h3>
+
+    <p style="color:#858c99;font-size:12px;">
+      Voice, music, video generation and final rendering
+      will be connected in the next stage.
+    </p>
+
+    <button
+      class="primary"
+      onclick="startProduction()"
+    >
+      🚀 Start Video Production
+    </button>
+
+  </section>
+
+</main>
+
+</div>
+
+
+<script>
+
+function generateScenes(){
+
+  const story =
+    document.getElementById("story").value.trim();
+
+  if(!story){
+
+    alert("আগে আপনার গল্প লিখুন।");
+
+    return;
+  }
+
+
+  const duration =
+    Number(
+      document.getElementById("duration").value
+    );
+
+
+  const count =
+    Number(
+      document.getElementById("sceneCount").value
+    );
+
+
+  const progress =
+    document.getElementById("progress");
+
+  const fill =
+    document.getElementById("fill");
+
+  const progressText =
+    document.getElementById("progressText");
+
+
+  progress.style.display="block";
+
+
+  let value=0;
+
+
+  const timer=setInterval(()=>{
+
+    value+=10;
+
+    fill.style.width=value+"%";
+
+
+    if(value<40){
+
+      progressText.innerText=
+        "Analyzing your story...";
+
+    }
+    else if(value<70){
+
+      progressText.innerText=
+        "Creating scene structure...";
+
+    }
+    else if(value<90){
+
+      progressText.innerText=
+        "Preparing cinematic scenes...";
+
+    }
+    else{
+
+      progressText.innerText=
+        "Finishing project...";
+
+    }
+
+
+    if(value>=100){
+
+      clearInterval(timer);
+
+      createSceneCards(
+        duration,
+        count
+      );
+
+      progressText.innerText=
+        "Scene plan completed.";
+
+    }
+
+  },120);
+
+}
+
+
+function createSceneCards(
+  duration,
+  count
+){
+
+  const grid =
+    document.getElementById("sceneGrid");
+
+
+  grid.innerHTML="";
+
+
+  const minutes =
+    duration/count;
+
+
+  const names=[
+
+    "The Beginning",
+    "The Mystery",
+    "The First Problem",
+    "The Discovery",
+    "The Conflict",
+    "The Turning Point",
+    "The Final Challenge",
+    "The Ending",
+    "The Secret",
+    "The Escape",
+    "The New Journey",
+    "The Aftermath"
+
+  ];
+
+
+  for(let i=0;i<count;i++){
+
+    const card =
+      document.createElement("div");
+
+
+    card.className="scene";
+
+
+    card.innerHTML=`
+
+      <div class="scene-number">
+        SCENE ${String(i+1).padStart(2,"0")}
+      </div>
+
+      <h4>
+        ${names[i] || "Cinematic Scene"}
+      </h4>
+
+      <p>
+        AI will later expand this scene into
+        visual prompts, character actions,
+        dialogue, camera movement and video.
+      </p>
+
+      <span class="time">
+        ${minutes.toFixed(1)} MIN
+      </span>
+
+    `;
+
+
+    grid.appendChild(card);
+
+  }
+
+}
+
+
+function startProduction(){
+
+  alert(
+    "Production system is ready. The real AI video engine will be connected next."
+  );
+
+}
+
+</script>
+
+</body>
+</html>

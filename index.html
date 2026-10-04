@@ -3,49 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VisionForge AI - V2 MOVIE</title>
+<title>VisionForge V3 FIXED</title>
 <style>
-body{background:#0a0a0a;color:#fff;font-family:sans-serif;padding:10px}
-h1{color:#ff00ff;text-align:center}
-.box{background:#1a1a1a;border:1px solid #333;padding:10px;margin:10px 0;border-radius:10px}
-textarea{width:100%;background:#000;color:#fff;border:1px solid #555;border-radius:8px;padding:10px}
-button{width:100%;padding:15px;font-size:18px;font-weight:bold;border-radius:10px;border:none;margin-top:10px}
+body{background:#0a0a0a;color:#fff;font-family:Arial;padding:10px;margin:0}
+h1{color:#ff00ff;text-align:center;margin:10px 0}
+.box{background:#1a1a1a;border:1px solid #333;padding:10px;margin:10px 0;border-radius:12px}
+textarea{width:100%;background:#000;color:#fff;border:1px solid #555;border-radius:8px;padding:10px;font-size:15px;box-sizing:border-box}
+button{width:100%;padding:16px;font-size:18px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;margin-top:10px}
 .btn{background:linear-gradient(90deg,#ff00ff,#ff6600);color:#fff}
-#canvas{width:100%;border-radius:10px;background:#000}
+#canvas{width:100%;max-width:720px;border-radius:12px;background:#000;display:block;margin:10px auto;aspect-ratio:16/9}
+#status{text-align:center;padding:12px;background:#111;border-radius:8px;margin:10px 0;border:1px solid #333}
 .dl{background:#00ff88;color:#000;display:none}
+small{color:#888}
 </style>
 </head>
 <body>
-<h1>🎬 VisionForge V2 MOVIE</h1>
-<p style="text-align:center;color:#aaa">মানুষ সহ রিয়েল মুভি বানবে</p>
+<h1>🎬 VisionForge V3 FIXED</h1>
+<p style="text-align:center;color:#aaa">মানুষ সহ রিয়েল মুভি - V3 ফাস্ট</p>
 <canvas id="canvas" width="1280" height="720"></canvas>
-<div id="status" style="text-align:center;padding:10px;background:#111;border-radius:8px;margin:10px 0">৪টা Scene রেডি আছে</div>
+<div id="status">✅ রেডি! মুভি বানাও বাটনে ক্লিক করো ভাই</div>
 <div id="scenes"></div>
-<button class="btn" onclick="startMovieRender()">🔥 মুভি বানাও</button>
-<button id="dlBtn" class="dl" onclick="downloadVideo()">⬇️ ভিডিও ডাউনলোড করো</button>
+<button class="btn" onclick="startRender()">🔥 মুভি বানাও</button>
+<button id="dlBtn" class="dl" onclick="downloadV()">⬇️ ভিডিও ডাউনলোড করো</button>
 <script>
-let scenesData=[
-"ভোরের কুয়াশা ভেদ করে গ্রামের মেঠো পথে রহিম হাটছে, 25 বছরের বাংলাদেশি যুবক, নীল পাঞ্জাবি পরা, realistic, cinematic",
-"বটতলায় নদীর ঘাটে আয়েশা দাড়িয়ে, 20 বছরের সুন্দরী বাংলাদেশি মেয়ে, নীল শাড়ি পরা, কলসি হাতে, village background, realistic",
-"বৃষ্টির মধ্যে রহিম ও আয়েশা কথা বলছে, আবেগময় মুহুর্ত, গ্রামের বৃষ্টি, cinematic",
-"সূর্যাস্তে দুজন নৌকায় বসে আছে, লাল আকাশ, romantic movie ending, highly detailed"
+let scenes=[
+{bn:"ভোরের কুয়াশা ভেদ করে গ্রামের মেঠো পথে রহিম হাটছে, 25 বছরের বাংলাদেশি যুবক, নীল পাঞ্জাবি পরা", en:"Bangladeshi young man 25 years old walking on village mud road early morning fog, blue panjabi, cinematic realistic"},
+{bn:"বটতলায় নদীর ঘাটে আয়েশা দাড়িয়ে আছে, 20 বছরের সুন্দরী বাংলাদেশি মেয়ে, নীল শাড়ি পরা, কলসি হাতে", en:"Beautiful Bangladeshi girl 20 years old in blue saree standing at river ghat with water pot, village background realistic"},
+{bn:"বৃষ্টির মধ্যে রহিম ও আয়েশা কথা বলছে, আবেগময় মুহুর্ত, গ্রামের বৃষ্টির দৃশ্য", en:"Bangladeshi couple talking in rain, emotional moment, village rain, cinematic lighting"},
+{bn:"সূর্যাস্তে দুজন নৌকায় বসে আছে, লাল আকাশ, রোমান্টিক শেষ দৃশ্য", en:"Bangladeshi couple sitting on small boat at sunset, red sky, romantic ending, highly detailed"}
 ];
-let canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),recorder,chunks=[],blob, statusEl=document.getElementById('status');
-function renderUI(){let h="";scenesData.forEach((t,i)=>{h+=`<div class=box><b>Scene ${i+1}</b> <span style=color:red;float:right onclick=scenesData.splice(${i},1);renderUI()>ডিলিট</span><textarea rows=3 oninput=scenesData[${i}]=this.value>${t}</textarea></div>`});document.getElementById('scenes').innerHTML=h}
+let canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),recorder,chunks=[],blob,statusEl=document.getElementById('status');
+function renderUI(){
+ let h="";
+ scenes.forEach((s,i)=>{
+  h+=`<div class=box><b>Scene ${i+1}</b> <span style=color:red;float:right;cursor:pointer onclick=scenes.splice(${i},1);renderUI()>ডিলিট</span><textarea rows=3 oninput=scenes[${i}].bn=this.value>${s.bn}</textarea><small>Image Prompt: ${s.en}</small></div>`;
+ });
+ document.getElementById('scenes').innerHTML=h;
+}
 renderUI();
-function speak(t){return new Promise(r=>{let u=new SpeechSynthesisUtterance(t);u.lang='bn-BD';u.rate=0.9;u.onend=()=>r();speechSynthesis.speak(u)})}
-async function startMovieRender(){
-chunks=[];let stream=canvas.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:'video/webm'});recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};recorder.onstop=()=>{blob=new Blob(chunks,{type:'video/webm'});document.getElementById('dlBtn').style.display='block';statusEl.innerHTML="✅ মুভি রেডি! ডাউনলোড করো ভাই"};recorder.start();
-for(let i=0;i<scenesData.length;i++){
-let p=encodeURIComponent(scenesData[i]+", cinematic movie scene, ultra realistic, 8k, Bangladesh village");
-let url=`https://image.pollinations.ai/prompt/${p}?width=1280&height=720&nologo=true&seed=${Date.now()+i}`;
-statusEl.innerHTML=`🎬 Scene ${i+1}/${scenesData.length} এর ছবি বানাচ্ছে...`;let img=new Image();img.crossOrigin="anonymous";await new Promise(res=>{img.onload=res;img.onerror=res;img.src=url});
-for(let f=0;f<150;f++){let s=1+(f/150)*0.3;ctx.clearRect(0,0,1280,720);ctx.save();ctx.translate(640,360);ctx.scale(s,s);ctx.translate(-640,-360);ctx.drawImage(img,0,0,1280,720);ctx.restore();ctx.fillStyle="rgba(0,0,0,0.4)";ctx.fillRect(0,600,1280,120);ctx.fillStyle="#fff";ctx.font="bold 26px sans-serif";ctx.fillText(scenesData[i].substring(0,55),20,680);await new Promise(r=>setTimeout(r,35))}
-await speak(scenesData[i]);
+function speak(t){return new Promise(r=>{let u=new SpeechSynthesisUtterance(t);u.lang='bn-BD';u.rate=0.9;u.onend=()=>r();speechSynthesis.speak(u);});}
+async function loadImg(url){
+ return new Promise(res=>{
+  let img=new Image(); img.crossOrigin="anonymous";
+  let to=setTimeout(()=>{console.log("timeout"); res(null);}, 15000);
+  img.onload=()=>{clearTimeout(to); res(img);};
+  img.onerror=()=>{clearTimeout(to); res(null);};
+  img.src=url+"&t="+Date.now();
+ });
 }
-recorder.stop();
+async function startRender(){
+ if(scenes.length==0){alert("Scene লেখো");return;}
+ statusEl.innerHTML="🎬 শুরু হচ্ছে... রেকর্ড চালু";
+ chunks=[]; let stream=canvas.captureStream(30);
+ recorder=new MediaRecorder(stream,{mimeType:'video/webm'});
+ recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};
+ recorder.onstop=()=>{blob=new Blob(chunks,{type:'video/webm'});document.getElementById('dlBtn').style.display='block';statusEl.innerHTML="✅ মুভি রেডি ভাই! নিচে সবুজ বাটনে ক্লিক করে ডাউনলোড করো";};
+ recorder.start();
+ for(let i=0;i<scenes.length;i++){
+  let enPrompt=encodeURIComponent(scenes[i].en + ", 8k, ultra realistic, cinematic movie");
+  let imgUrl=`https://image.pollinations.ai/prompt/${enPrompt}?width=1280&height=720&nologo=true&model=flux&seed=${Math.floor(Math.random()*10000)}`;
+  statusEl.innerHTML=`🎬 Scene ${i+1}/${scenes.length} ছবি বানাচ্ছে...<br>একটু অপেক্ষা করো ভাই`;
+  let img=await loadImg(imgUrl);
+  if(!img){
+   ctx.fillStyle="#222"; ctx.fillRect(0,0,1280,720);
+   ctx.fillStyle="#fff"; ctx.font="bold 40px Arial"; ctx.fillText("Image loading failed, using fallback",100,360);
+  } else {
+   for(let f=0;f<120;f++){
+    let sc=1+(f/120)*0.25;
+    ctx.clearRect(0,0,1280,720);
+    ctx.save(); ctx.translate(640,360); ctx.scale(sc,sc); ctx.translate(-640,-360);
+    ctx.drawImage(img,0,0,1280,720); ctx.restore();
+    ctx.fillStyle="rgba(0,0,0,0.45)"; ctx.fillRect(0,600,1280,120);
+    ctx.fillStyle="#fff"; ctx.font="bold 28px Arial"; ctx.fillText(scenes[i].bn.substring(0,60),20,680);
+    await new Promise(r=>setTimeout(r,40));
+   }
+  }
+  statusEl.innerHTML=`🎙️ ভয়েস বলছে Scene ${i+1}`;
+  await speak(scenes[i].bn);
+ }
+ recorder.stop();
 }
-function downloadVideo(){let u=URL.createObjectURL(blob);let a=document.createElement('a');a.href=u;a.download=`movie-${Date.now()}.webm`;a.click()}
+function downloadV(){let u=URL.createObjectURL(blob);let a=document.createElement('a');a.href=u;a.download=`visionforge-v3-${Date.now()}.webm`;a.click();}
 </script>
 </body>
 </html>

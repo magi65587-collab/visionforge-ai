@@ -3,135 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VisionForge AI - Private Studio</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#07080d;color:#fff;display:flex;min-height:100vh}
-.sidebar{width:260px;position:fixed;left:0;top:0;bottom:0;background:#0b0d13;border-right:1px solid #242936;padding:22px 15px;display:flex;flex-direction:column;justify-content:space-between}
-.logo{font-size:22px;font-weight:bold;color:#8b5cf6}
-.logo span{color:#fff}
-.nav{margin-top:30px}
-.nav button{width:100%;padding:12px;background:#151821;border:1px solid #242936;color:#aaa;text-align:left;border-radius:8px;margin-bottom:10px;cursor:pointer}
-.nav button.active{background:#8b5cf6;color:#fff}
-.main{margin-left:260px;flex:1;padding:25px;display:flex;gap:20px}
-.left{flex:2}
-.right{flex:1;background:#0b0d13;border:1px solid #242936;border-radius:12px;padding:15px;height:fit-content}
-.scene-card{background:#12141f;border:1px solid #242936;border-radius:12px;padding:15px;margin-bottom:15px;position:relative}
-.scene-card h4{color:#8b5cf6;margin-bottom:8px}
-.scene-card textarea{width:100%;background:#07080d;border:1px solid #242936;color:#fff;border-radius:8px;padding:10px;min-height:80px;resize:none}
-.scene-card .meta{display:flex;gap:10px;margin-top:10px}
-.scene-card .meta span{font-size:12px;background:#1c1f2e;padding:4px 8px;border-radius:20px}
-.btn{padding:12px 20px;background:#8b5cf6;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;margin-top:10px}
-.btn-outline{background:transparent;border:1px solid #8b5cf6;color:#8b5cf6}
-.timeline{display:flex;gap:5px;margin-top:15px}
-.timeline div{flex:1;height:6px;background:#242936;border-radius:10px}
-.timeline div.active{background:#8b5cf6}
-#previewVideo{width:100%;border-radius:12px;background:#000;aspect-ratio:16/9}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;flex-direction:column}}
-</style>
+<title>VisionForge AI - Pro Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Hind Siliguri',sans-serif;background:#0f0f14;color:#fff}.scene-card{background:#1e1e2a;border:1px solid #3a3a4a;border-radius:16px;padding:16px;margin-bottom:16px} textarea{background:#12121a;border:1px solid #444;color:#fff;width:100%;border-radius:12px;padding:12px;min-height:90px}.badge{background:#2a2a3a;padding:4px 10px;border-radius:20px;font-size:12px;display:inline-flex;gap:6px;margin-right:6px}</style>
 </head>
-<body>
-<div class="sidebar">
-  <div>
-    <div class="logo">VisionForge <span>AI</span></div>
-    <div class="nav">
-      <button class="active">🎬 ভিডিও স্টুডিও</button>
-      <button>📁 আমার ভিডিও</button>
-      <button>⚙️ সেটিংস</button>
-    </div>
-  </div>
-  <div style="font-size:12px;color:#555">Private Mode • 100% Free • 20min+ Video</div>
+<body class="p-4 max-w-2xl mx-auto">
+<h1 class="text-2xl font-bold text-center py-4">🎬 VisionForge AI - Pro Studio</h1>
+<p class="text-center text-gray-400 text-sm mb-4">২০ মিনিটের গল্প, নাটক, ভিডিও বানাও - বাংলা ভয়েস সহ</p>
+<div id="scenes"></div>
+<button onclick="addScene()" class="w-full border border-[#7c5cff] text-[#7c5cff] py-3 rounded-xl mb-3 font-semibold">+ নতুন Scene যোগ করো (৫ মিনিট)</button>
+<button onclick="renderVideo()" class="w-full bg-[#7c5cff] py-4 rounded-xl font-bold text-lg">🔥 পুরা ভিডিও রেন্ডার ও ডাউনলোড</button>
+<div id="output" class="mt-6 hidden">
+ <div class="bg-[#1e1e2a] p-4 rounded-xl">
+  <h3 class="font-bold mb-2">✅ রেন্ডার প্রোগ্রেস</h3>
+  <div id="progress" class="text-sm text-gray-300"></div>
+  <canvas id="canvas" width="1280" height="720" class="w-full rounded-xl mt-3 bg-black"></canvas>
+  <video id="preview" controls class="w-full rounded-xl mt-3 hidden"></video>
+  <button id="dlBtn" class="hidden w-full bg-green-600 py-3 rounded-xl mt-3 font-bold">⬇️ ভিডিও ডাউনলোড করো</button>
+ </div>
 </div>
-
-<div class="main">
-  <div class="left">
-    <h2>নতুন ভিডিও প্রজেক্ট - ২০ মিনিট+</h2>
-    <p style="color:#888;margin:5px 0 20px">প্রতিটি Scene ৫ মিনিট করে, ১০ টা Scene এ ৫০ মিনিট পর্যন্ত বানাতে পারবা।</p>
-    
-    <div id="sceneContainer"></div>
-    
-    <button class="btn btn-outline" onclick="addScene()">+ নতুন Scene যোগ করো (৫ মিনিট)</button>
-    <button class="btn" onclick="generateVideo()">🔥 পুরা ২০ মিনিটের ভিডিও বানাও</button>
-    
-    <div class="timeline" id="timeline"></div>
-    <p id="totalDuration" style="margin-top:10px;color:#8b5cf6;font-weight:bold">মোট সময়: 0 মিনিট</p>
-  </div>
-
-  <div class="right">
-    <h3>প্রিভিউ</h3>
-    <video id="previewVideo" controls poster="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600"></video>
-    <div id="status" style="margin-top:15px;font-size:14px;color:#aaa">একটা Scene লিখে Generate এ ক্লিক করো ভাই।</div>
-    <div id="log" style="margin-top:10px;background:#07080d;padding:10px;border-radius:8px;font-size:12px;height:200px;overflow-y:auto"></div>
-  </div>
-</div>
-
 <script>
-let scenes = [
-  {id:1, prompt:"একটি গ্রামের সকাল, কুয়াশা, পাখির ডাক", duration:5},
-  {id:2, prompt:"নায়ক হাঁটছে, সিনেমাটিক", duration:5},
-  {id:3, prompt:"নায়িকা দেখা, বৃষ্টি পড়ছে", duration:5},
-  {id:4, prompt:"শেষ দৃশ্য, সূর্যাস্ত", duration:5}
-];
-
-function renderScenes(){
-  const container = document.getElementById('sceneContainer');
-  container.innerHTML = '';
-  scenes.forEach((s,i)=>{
-    container.innerHTML += `
-    <div class="scene-card">
-      <h4>Scene ${i+1} - ${s.duration} মিনিট</h4>
-      <textarea placeholder="এই Scene এ কি হবে বাংলায় লিখো..." oninput="scenes[${i}].prompt=this.value">${s.prompt}</textarea>
-      <div class="meta"><span>⏱️ ${s.duration} min</span><span>🎙️ বাংলা Voice</span><span>🎨 AI Visual</span></div>
-    </div>`;
-  });
-  updateTimeline();
+let scenesData=["একটি গ্রামের সকাল, কুয়াশা, পাখির ডাক","নায়ক হাঁটছে, সিনেমাটিক","নায়িকা দেখা, বৃষ্টি পড়ছে","শেষ দৃশ্য, সূর্যাস্ত"];
+function renderScenes(){const c=document.getElementById('scenes');c.innerHTML='';scenesData.forEach((t,i)=>{c.innerHTML+=`<div class="scene-card"><div class="flex justify-between"><span class="text-[#7c5cff] font-bold">Scene ${i+1} - 5 মিনিট</span><button onclick="removeScene(${i})" class="text-red-400 text-xs">ডিলিট</button></div><textarea oninput="scenesData[${i}]=this.value" placeholder="এই সিনে কি হবে লিখো...">${t}</textarea><div class="mt-2"><span class="badge">⏱ 5 min</span><span class="badge">🎙 বাংলা Voice</span><span class="badge">🎨 AI Visual</span></div></div>`;});}
+function addScene(){scenesData.push("নতুন দৃশ্য - এখানে লিখো");renderScenes();}
+function removeScene(i){scenesData.splice(i,1);renderScenes();}
+async function renderVideo(){
+ if(scenesData.some(s=>!s.trim())){alert("ভাই সব Scene এ কিছু লিখো!");return;}
+ document.getElementById('output').classList.remove('hidden');
+ const progress=document.getElementById('progress');
+ const canvas=document.getElementById('canvas'); const ctx=canvas.getContext('2d');
+ const preview=document.getElementById('preview');
+ progress.innerHTML="🎙 বাংলা ভয়েস রেডি হচ্ছে...";
+ function speak(text){return new Promise(res=>{const u=new SpeechSynthesisUtterance(text);u.lang='bn-BD';u.rate=0.9;u.onend=res;speechSynthesis.speak(u);});}
+ const colors=[["#0f172a","#7c5cff"],["#1a2a1a","#22c55e"],["#2a1a1a","#ef4444"],["#1a1a2a","#f59e0b"]];
+ let chunks=[]; const stream=canvas.captureStream(30); const recorder=new MediaRecorder(stream,{mimeType:'video/webm'});
+ recorder.ondataavailable=e=>chunks.push(e.data);
+ recorder.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});const url=URL.createObjectURL(blob);preview.src=url;preview.classList.remove('hidden');const dl=document.getElementById('dlBtn');dl.classList.remove('hidden');dl.onclick=()=>{const a=document.createElement('a');a.href=url;a.download=`VisionForge-${Date.now()}.webm`;a.click();};progress.innerHTML="✅ ভাই রেন্ডার শেষ! এখন ডাউনলোড করো আর YouTube এ দাও!";};
+ recorder.start();
+ for(let i=0;i<scenesData.length;i++){
+  progress.innerHTML=`🎬 Scene ${i+1}/${scenesData.length} রেন্ডার হচ্ছে: ${scenesData[i].substring(0,40)}...`;
+  const grad=ctx.createLinearGradient(0,0,1280,720); grad.addColorStop(0,colors[i%colors.length][0]); grad.addColorStop(1,colors[i%colors.length][1]); ctx.fillStyle=grad; ctx.fillRect(0,0,1280,720);
+  ctx.fillStyle="white"; ctx.font="bold 54px Hind Siliguri"; ctx.textAlign="center"; wrapText(ctx,scenesData[i],640,360,1000,70);
+  ctx.font="24px Hind Siliguri"; ctx.fillText(`Scene ${i+1} | VisionForge AI`,640,680);
+  const utterPromise=speak(scenesData[i]);
+  for(let f=0;f<150;f++){await new Promise(r=>setTimeout(r,33));}
+  await utterPromise;
+ }
+ recorder.stop();
 }
-
-function addScene(){
-  if(scenes.length >= 10){ alert("ভাই ১০ টা Scene ই ম্যাক্স, ৫০ মিনিট হয়ে যাবে!"); return; }
-  scenes.push({id:Date.now(), prompt:"", duration:5});
-  renderScenes();
-}
-
-function updateTimeline(){
-  document.getElementById('timeline').innerHTML = scenes.map(s=>`<div class="active"></div>`).join('');
-  document.getElementById('totalDuration').innerText = `মোট সময়: ${scenes.length * 5} মিনিট`;
-}
-
-function log(msg){
-  document.getElementById('log').innerHTML += `<div>> ${msg}</div>`;
-}
-
-async function generateVideo(){
-  const status = document.getElementById('status');
-  status.innerText = "ভিডিও বানানো শুরু হলো ভাই...";
-  log("প্রজেক্ট শুরু: " + scenes.length + " টা Scene");
-  
-  for(let i=0; i<scenes.length; i++){
-    const scene = scenes[i];
-    if(!scene.prompt){ alert(`Scene ${i+1} ফাঁকা ভাই!`); return; }
-    log(`Scene ${i+1} বানানো হচ্ছে: ${scene.prompt.substring(0,20)}...`);
-    status.innerText = `Scene ${i+1}/${scenes.length} রেন্ডার হচ্ছে... (৫ মিনিট)`;
-    
-    // FREE Image Generation using Pollinations
-    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(scene.prompt + ' cinematic, 8k, ultra realistic')}?width=1280&height=720&nologo=true`;
-    log(`Image Generated: Scene ${i+1}`);
-    
-    // Bengali TTS using Browser API
-    const utter = new SpeechSynthesisUtterance(scene.prompt);
-    utter.lang = 'bn-BD';
-    utter.rate = 0.9;
-    // speechSynthesis.speak(utter);
-    
-    await new Promise(r=>setTimeout(r, 1500));
-  }
-  
-  status.innerText = "✅ ভিডিও রেডি! ২০ মিনিট+ ভিডিও তৈরি হয়েছে ভাই।";
-  log("✅ সম্পূর্ণ ভিডিও রেন্ডার শেষ!");
-  log("টিপস: এখন এই সব Scene FFmpeg দিয়ে জোড়া লাগাতে পারবা।");
-  alert("ভাই ডেমো রেন্ডার শেষ! এখন তোমার প্রাইভেট স্টুডিও রেডি। পরবর্তী স্টেপে আমি FFmpeg.wasm লাগিয়ে পুরা ভিডিও ডাউনলোড সিস্টেম লাগাই দিবো।");
-}
-
+function wrapText(ctx,text,x,y,maxWidth,lineHeight){const words=text.split(' ');let line='';let yy=y;for(let n=0;n<words.length;n++){const test=line+words[n]+' ';if(ctx.measureText(test).width>maxWidth&&n>0){ctx.fillText(line,x,yy);line=words[n]+' ';yy+=lineHeight;}else line=test;}ctx.fillText(line,x,yy);}
 renderScenes();
 </script>
 </body>

@@ -3,57 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VisionForge AI - Pro Studio</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'Hind Siliguri',sans-serif;background:#0f0f14;color:#fff}.scene-card{background:#1e1e2a;border:1px solid #3a3a4a;border-radius:16px;padding:16px;margin-bottom:16px} textarea{background:#12121a;border:1px solid #444;color:#fff;width:100%;border-radius:12px;padding:12px;min-height:90px}.badge{background:#2a2a3a;padding:4px 10px;border-radius:20px;font-size:12px;display:inline-flex;gap:6px;margin-right:6px}</style>
+<title>VisionForge AI - V2 MOVIE</title>
+<style>
+body{background:#0a0a0a;color:#fff;font-family:sans-serif;padding:10px}
+h1{color:#ff00ff;text-align:center}
+.box{background:#1a1a1a;border:1px solid #333;padding:10px;margin:10px 0;border-radius:10px}
+textarea{width:100%;background:#000;color:#fff;border:1px solid #555;border-radius:8px;padding:10px}
+button{width:100%;padding:15px;font-size:18px;font-weight:bold;border-radius:10px;border:none;margin-top:10px}
+.btn{background:linear-gradient(90deg,#ff00ff,#ff6600);color:#fff}
+#canvas{width:100%;border-radius:10px;background:#000}
+.dl{background:#00ff88;color:#000;display:none}
+</style>
 </head>
-<body class="p-4 max-w-2xl mx-auto">
-<h1 class="text-2xl font-bold text-center py-4">🎬 VisionForge AI - Pro Studio</h1>
-<p class="text-center text-gray-400 text-sm mb-4">২০ মিনিটের গল্প, নাটক, ভিডিও বানাও - বাংলা ভয়েস সহ</p>
+<body>
+<h1>🎬 VisionForge V2 MOVIE</h1>
+<p style="text-align:center;color:#aaa">মানুষ সহ রিয়েল মুভি বানবে</p>
+<canvas id="canvas" width="1280" height="720"></canvas>
+<div id="status" style="text-align:center;padding:10px;background:#111;border-radius:8px;margin:10px 0">৪টা Scene রেডি আছে</div>
 <div id="scenes"></div>
-<button onclick="addScene()" class="w-full border border-[#7c5cff] text-[#7c5cff] py-3 rounded-xl mb-3 font-semibold">+ নতুন Scene যোগ করো (৫ মিনিট)</button>
-<button onclick="renderVideo()" class="w-full bg-[#7c5cff] py-4 rounded-xl font-bold text-lg">🔥 পুরা ভিডিও রেন্ডার ও ডাউনলোড</button>
-<div id="output" class="mt-6 hidden">
- <div class="bg-[#1e1e2a] p-4 rounded-xl">
-  <h3 class="font-bold mb-2">✅ রেন্ডার প্রোগ্রেস</h3>
-  <div id="progress" class="text-sm text-gray-300"></div>
-  <canvas id="canvas" width="1280" height="720" class="w-full rounded-xl mt-3 bg-black"></canvas>
-  <video id="preview" controls class="w-full rounded-xl mt-3 hidden"></video>
-  <button id="dlBtn" class="hidden w-full bg-green-600 py-3 rounded-xl mt-3 font-bold">⬇️ ভিডিও ডাউনলোড করো</button>
- </div>
-</div>
+<button class="btn" onclick="startMovieRender()">🔥 মুভি বানাও</button>
+<button id="dlBtn" class="dl" onclick="downloadVideo()">⬇️ ভিডিও ডাউনলোড করো</button>
 <script>
-let scenesData=["একটি গ্রামের সকাল, কুয়াশা, পাখির ডাক","নায়ক হাঁটছে, সিনেমাটিক","নায়িকা দেখা, বৃষ্টি পড়ছে","শেষ দৃশ্য, সূর্যাস্ত"];
-function renderScenes(){const c=document.getElementById('scenes');c.innerHTML='';scenesData.forEach((t,i)=>{c.innerHTML+=`<div class="scene-card"><div class="flex justify-between"><span class="text-[#7c5cff] font-bold">Scene ${i+1} - 5 মিনিট</span><button onclick="removeScene(${i})" class="text-red-400 text-xs">ডিলিট</button></div><textarea oninput="scenesData[${i}]=this.value" placeholder="এই সিনে কি হবে লিখো...">${t}</textarea><div class="mt-2"><span class="badge">⏱ 5 min</span><span class="badge">🎙 বাংলা Voice</span><span class="badge">🎨 AI Visual</span></div></div>`;});}
-function addScene(){scenesData.push("নতুন দৃশ্য - এখানে লিখো");renderScenes();}
-function removeScene(i){scenesData.splice(i,1);renderScenes();}
-async function renderVideo(){
- if(scenesData.some(s=>!s.trim())){alert("ভাই সব Scene এ কিছু লিখো!");return;}
- document.getElementById('output').classList.remove('hidden');
- const progress=document.getElementById('progress');
- const canvas=document.getElementById('canvas'); const ctx=canvas.getContext('2d');
- const preview=document.getElementById('preview');
- progress.innerHTML="🎙 বাংলা ভয়েস রেডি হচ্ছে...";
- function speak(text){return new Promise(res=>{const u=new SpeechSynthesisUtterance(text);u.lang='bn-BD';u.rate=0.9;u.onend=res;speechSynthesis.speak(u);});}
- const colors=[["#0f172a","#7c5cff"],["#1a2a1a","#22c55e"],["#2a1a1a","#ef4444"],["#1a1a2a","#f59e0b"]];
- let chunks=[]; const stream=canvas.captureStream(30); const recorder=new MediaRecorder(stream,{mimeType:'video/webm'});
- recorder.ondataavailable=e=>chunks.push(e.data);
- recorder.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});const url=URL.createObjectURL(blob);preview.src=url;preview.classList.remove('hidden');const dl=document.getElementById('dlBtn');dl.classList.remove('hidden');dl.onclick=()=>{const a=document.createElement('a');a.href=url;a.download=`VisionForge-${Date.now()}.webm`;a.click();};progress.innerHTML="✅ ভাই রেন্ডার শেষ! এখন ডাউনলোড করো আর YouTube এ দাও!";};
- recorder.start();
- for(let i=0;i<scenesData.length;i++){
-  progress.innerHTML=`🎬 Scene ${i+1}/${scenesData.length} রেন্ডার হচ্ছে: ${scenesData[i].substring(0,40)}...`;
-  const grad=ctx.createLinearGradient(0,0,1280,720); grad.addColorStop(0,colors[i%colors.length][0]); grad.addColorStop(1,colors[i%colors.length][1]); ctx.fillStyle=grad; ctx.fillRect(0,0,1280,720);
-  ctx.fillStyle="white"; ctx.font="bold 54px Hind Siliguri"; ctx.textAlign="center"; wrapText(ctx,scenesData[i],640,360,1000,70);
-  ctx.font="24px Hind Siliguri"; ctx.fillText(`Scene ${i+1} | VisionForge AI`,640,680);
-  const utterPromise=speak(scenesData[i]);
-  for(let f=0;f<150;f++){await new Promise(r=>setTimeout(r,33));}
-  await utterPromise;
- }
- recorder.stop();
+let scenesData=[
+"ভোরের কুয়াশা ভেদ করে গ্রামের মেঠো পথে রহিম হাটছে, 25 বছরের বাংলাদেশি যুবক, নীল পাঞ্জাবি পরা, realistic, cinematic",
+"বটতলায় নদীর ঘাটে আয়েশা দাড়িয়ে, 20 বছরের সুন্দরী বাংলাদেশি মেয়ে, নীল শাড়ি পরা, কলসি হাতে, village background, realistic",
+"বৃষ্টির মধ্যে রহিম ও আয়েশা কথা বলছে, আবেগময় মুহুর্ত, গ্রামের বৃষ্টি, cinematic",
+"সূর্যাস্তে দুজন নৌকায় বসে আছে, লাল আকাশ, romantic movie ending, highly detailed"
+];
+let canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),recorder,chunks=[],blob, statusEl=document.getElementById('status');
+function renderUI(){let h="";scenesData.forEach((t,i)=>{h+=`<div class=box><b>Scene ${i+1}</b> <span style=color:red;float:right onclick=scenesData.splice(${i},1);renderUI()>ডিলিট</span><textarea rows=3 oninput=scenesData[${i}]=this.value>${t}</textarea></div>`});document.getElementById('scenes').innerHTML=h}
+renderUI();
+function speak(t){return new Promise(r=>{let u=new SpeechSynthesisUtterance(t);u.lang='bn-BD';u.rate=0.9;u.onend=()=>r();speechSynthesis.speak(u)})}
+async function startMovieRender(){
+chunks=[];let stream=canvas.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:'video/webm'});recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};recorder.onstop=()=>{blob=new Blob(chunks,{type:'video/webm'});document.getElementById('dlBtn').style.display='block';statusEl.innerHTML="✅ মুভি রেডি! ডাউনলোড করো ভাই"};recorder.start();
+for(let i=0;i<scenesData.length;i++){
+let p=encodeURIComponent(scenesData[i]+", cinematic movie scene, ultra realistic, 8k, Bangladesh village");
+let url=`https://image.pollinations.ai/prompt/${p}?width=1280&height=720&nologo=true&seed=${Date.now()+i}`;
+statusEl.innerHTML=`🎬 Scene ${i+1}/${scenesData.length} এর ছবি বানাচ্ছে...`;let img=new Image();img.crossOrigin="anonymous";await new Promise(res=>{img.onload=res;img.onerror=res;img.src=url});
+for(let f=0;f<150;f++){let s=1+(f/150)*0.3;ctx.clearRect(0,0,1280,720);ctx.save();ctx.translate(640,360);ctx.scale(s,s);ctx.translate(-640,-360);ctx.drawImage(img,0,0,1280,720);ctx.restore();ctx.fillStyle="rgba(0,0,0,0.4)";ctx.fillRect(0,600,1280,120);ctx.fillStyle="#fff";ctx.font="bold 26px sans-serif";ctx.fillText(scenesData[i].substring(0,55),20,680);await new Promise(r=>setTimeout(r,35))}
+await speak(scenesData[i]);
 }
-function wrapText(ctx,text,x,y,maxWidth,lineHeight){const words=text.split(' ');let line='';let yy=y;for(let n=0;n<words.length;n++){const test=line+words[n]+' ';if(ctx.measureText(test).width>maxWidth&&n>0){ctx.fillText(line,x,yy);line=words[n]+' ';yy+=lineHeight;}else line=test;}ctx.fillText(line,x,yy);}
-renderScenes();
+recorder.stop();
+}
+function downloadVideo(){let u=URL.createObjectURL(blob);let a=document.createElement('a');a.href=u;a.download=`movie-${Date.now()}.webm`;a.click()}
 </script>
 </body>
 </html>
